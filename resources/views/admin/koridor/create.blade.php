@@ -1,0 +1,142 @@
+@extends('layouts.admin')
+@section('title', 'Tambah Koridor')
+@section('page-title', 'Tambah Koridor')
+@section('page-subtitle', 'Buat jalur koridor baru')
+
+@section('content')
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {{-- Form Utama --}}
+        <div class="lg:col-span-2">
+            <form action="{{ route('admin.koridor.store') }}" method="POST" id="koridor-form">
+                @csrf
+
+                <div class="bg-white rounded-2xl shadow-card overflow-hidden">
+                    {{-- Header Card --}}
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3"
+                        style="background:linear-gradient(135deg,#1e3a8a,#2563eb);">
+                        <div
+                            style="width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                            <i class="bx bx-route text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold text-sm">Data Koridor</div>
+                            <div class="text-blue-200 text-xs">Isi informasi jalur koridor bus</div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 space-y-5">
+                        @include('admin.koridor._form')
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="flex gap-3 mt-4">
+                    <button type="submit" class="btn-primary flex-1 justify-center py-3">
+                        <i class="bx bx-save mr-1"></i> Simpan Koridor
+                    </button>
+                    <a href="{{ route('admin.koridor.index') }}" class="btn-secondary px-6 py-3">
+                        <i class="bx bx-x mr-1"></i> Batal
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        {{-- Preview Panel --}}
+        <div class="space-y-4">
+            {{-- Preview Peta Koridor --}}
+            <div class="bg-white rounded-2xl shadow-card overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                        <i class="bx bx-show text-primary-600"></i> Preview
+                    </h3>
+                </div>
+                <div class="p-5 space-y-4">
+                    {{-- Badge Koridor --}}
+                    <div class="flex items-center gap-3">
+                        <div id="prev-color-dot"
+                            style="width:44px;height:44px;border-radius:12px;background:#3b82f6;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px #3b82f640;">
+                            <i class="bx bx-route text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div id="prev-kode" class="font-extrabold text-gray-900 text-lg">K01</div>
+                            <div id="prev-nama" class="text-xs text-gray-500 leading-tight">Nama Koridor</div>
+                        </div>
+                    </div>
+
+                    {{-- Garis jalur preview --}}
+                    <div>
+                        <div class="text-xs text-gray-400 font-medium mb-2">Warna Jalur Peta</div>
+                        <div id="prev-line"
+                            style="height:8px;border-radius:99px;background:#3b82f6;box-shadow:0 2px 8px #3b82f640;transition:all .3s;">
+                        </div>
+                    </div>
+
+                    {{-- Status --}}
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Status</span>
+                        <span id="prev-status" class="text-xs font-bold px-3 py-1 rounded-full bg-green-100 text-green-700">
+                            Aktif
+                        </span>
+                    </div>
+
+                    {{-- Deskripsi --}}
+                    <div id="prev-desc-wrap" class="hidden">
+                        <div class="text-xs text-gray-400 font-medium mb-1">Deskripsi</div>
+                        <div id="prev-desc" class="text-xs text-gray-600 bg-gray-50 rounded-xl p-3 leading-relaxed"></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tips --}}
+            <div class="bg-blue-50 rounded-2xl p-5">
+                <div class="text-xs font-bold text-blue-800 mb-2 flex items-center gap-2">
+                    <i class="bx bx-info-circle text-lg"></i> Tips
+                </div>
+                <ul class="text-xs text-blue-700 space-y-1.5 list-disc pl-4">
+                    <li>Kode koridor biasanya berupa <strong>K01, K02</strong>, dst.</li>
+                    <li>Pilih warna yang <strong>mudah dibedakan</strong> antar koridor di peta.</li>
+                    <li>Urutan menentukan tampilan di daftar publik.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const kodeInput = document.querySelector('input[name="kode"]');
+            const namaInput = document.querySelector('input[name="nama"]');
+            const hexInput = document.getElementById('warna-hex');
+            const aktifCheck = document.getElementById('aktif');
+            const descInput = document.querySelector('textarea[name="deskripsi"]');
+
+            function updatePreview() {
+                const warna = hexInput?.value || '#3b82f6';
+                const warnaShadow = warna + '40';
+
+                document.getElementById('prev-kode').textContent = kodeInput?.value || 'K--';
+                document.getElementById('prev-nama').textContent = namaInput?.value || 'Nama Koridor';
+                document.getElementById('prev-color-dot').style.background = warna;
+                document.getElementById('prev-color-dot').style.boxShadow = '0 4px 12px ' + warnaShadow;
+                document.getElementById('prev-line').style.background = warna;
+                document.getElementById('prev-line').style.boxShadow = '0 2px 8px ' + warnaShadow;
+
+                const aktif = aktifCheck?.checked;
+                const statusEl = document.getElementById('prev-status');
+                statusEl.textContent = aktif ? 'Aktif' : 'Nonaktif';
+                statusEl.className = 'text-xs font-bold px-3 py-1 rounded-full ' +
+                    (aktif ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500');
+
+                const desc = descInput?.value?.trim();
+                document.getElementById('prev-desc-wrap').classList.toggle('hidden', !desc);
+                document.getElementById('prev-desc').textContent = desc || '';
+            }
+
+            [kodeInput, namaInput, hexInput, descInput].forEach(el => el?.addEventListener('input', updatePreview));
+            aktifCheck?.addEventListener('change', updatePreview);
+            updatePreview();
+        });
+    </script>
+@endpush

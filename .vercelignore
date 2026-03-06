@@ -1,0 +1,26 @@
+# .vercelignore — File yang tidak perlu diupload ke Vercel
+
+# Dependencies (akan diinstall oleh Vercel)
+/node_modules
+
+# Storage (read-only di Vercel, gunakan external storage untuk uploads)
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/testing
+/storage/framework/views
+/storage/logs
+
+# Cache lokal
+/bootstrap/cache/*.php
+/.phpunit.cache
+/.phpunit.result.cache
+
+# Dev files
+Homestead.json
+Homestead.yaml
+.env.backup
+.fleet
+.idea
+.vscode
+npm-debug.log
+yarn-error.log
